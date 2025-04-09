@@ -12,44 +12,79 @@ This tutorial outlines the prerequisites and installation of the open-source hel
 
 <h2>Environments and Technologies Used</h2>
 
-- Microsoft Azure (Virtual Machines/Compute)
-- Remote Desktop
-- Internet Information Services (IIS)
+## 🧰 Tools Used
 
-<h2>Operating Systems Used </h2>
+- Microsoft Azure (for hosting VM)
+- Windows 10 (on the VM)
+- IIS (Internet Information Services)
+- PHP (via FastCGI)
+- MySQL (Community Edition)
+- osTicket (latest version)
 
-- Windows 10</b> (21H2)
+---
 
-<h2>List of Prerequisites</h2>
+## ✅ Prerequisites Checklist
 
-- Item 1
-- Item 2
-- Item 3
-- Item 4
-- Item 5
+1. **Azure Virtual Machine**
+    - Windows 10 Pro
+    - Inbound ports allowed: RDP (3389), HTTP (80)
 
-<h2>Installation Steps</h2>
+2. **Remote Access**
+    - Use Remote Desktop to connect to your VM after deployment.
 
-<p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-</p>
-<p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-</p>
-<br />
+3. **Install IIS**
+    - Go to Control Panel → Programs → Turn Windows Features On or Off
+    - Enable:
+        - Internet Information Services
+            - Web Management Tools
+            - World Wide Web Services
+                - Common HTTP Features
+                - Application Development → CGI
+                - Security → Request Filtering
 
-<p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-</p>
-<p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-</p>
-<br />
+4. **Install PHP**
+    - Download from https://windows.php.net/download
+    - Extract to `C:\PHP`
+    - Add `C:\PHP` to System PATH
+    - Configure in IIS:
+        - Open IIS Manager → Handler Mappings → Add Module Mapping
+            - Request Path: `*.php`
+            - Module: `FastCgiModule`
+            - Executable: `C:\PHP\php-cgi.exe`
+            - Name: `PHP_via_FastCGI`
 
-<p>
-<img src="https://i.imgur.com/DJmEXEB.png" height="80%" width="80%" alt="Disk Sanitization Steps"/>
-</p>
-<p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-</p>
-<br />
+5. **Install MySQL**
+    - Download from https://dev.mysql.com
+    - Setup root password
+    - Create database and user:
+
+    ```sql
+    CREATE DATABASE osticket;
+    CREATE USER 'ostuser'@'localhost' IDENTIFIED BY 'yourpassword';
+    GRANT ALL PRIVILEGES ON osticket.* TO 'ostuser'@'localhost';
+    FLUSH PRIVILEGES;
+    ```
+
+6. **Download osTicket**
+    - https://osticket.com/download
+    - Extract to: `C:\inetpub\wwwroot\osTicket`
+    - Rename: `include\ost-sampleconfig.php` → `ost-config.php`
+
+7. **Set File Permissions**
+    - Give `IIS_IUSRS` full control of:
+        - `ost-config.php`
+        - `include/`
+        - `attachments/`
+        - Root osTicket folder
+
+8. **Run Installer**
+    - Open browser in VM: `http://localhost/osTicket`
+    - Follow web-based installer instructions
+
+---
+
+## 📌 Final Notes
+
+- Delete the `/setup` directory after installation.
+- Make `ost-config.php` read-only for security.
+- Access osTicket from external IP: `http://<azure-public-ip>/osTicket`
